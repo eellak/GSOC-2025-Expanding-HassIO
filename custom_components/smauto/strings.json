@@ -1,0 +1,22 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "SmAuto Server Setup",
+        "description": "Please enter the connection details for your SmAuto REST API server.",
+        "data": {
+          "url": "Server URL",
+          "api_key": "API Key"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the SmAuto server. Please check the URL and ensure the server is running.",
+      "invalid_auth": "Invalid API Key. Please check the key and try again.",
+      "unknown": "An unknown error occurred."
+    },
+    "abort": {
+      "already_configured": "This SmAuto server is already configured."
+    }
+  }
+}

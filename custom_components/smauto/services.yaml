@@ -1,0 +1,28 @@
+# Describes the services your integration provides
+run_model:
+  name: "Run SmAuto Model"
+  description: "Reads a model from a file in your config directory, generates the code, and runs it."
+  fields:
+    filename:
+      name: "Filename"
+      description: "The name of the .auto file in your /config directory (e.g., smauto_model.auto)."
+      required: true
+      selector:
+        text:
+    process_name:
+      name: "Process Name"
+      description: "A unique name for this running process. Used to stop it later. Defaults to the model name if not provided."
+      required: false
+      selector:
+        text:
+
+stop_model:
+  name: "Stop SmAuto Model"
+  description: "Stops a running SmAuto process."
+  fields:
+    process_name:
+      name: "Process Name"
+      description: "The unique name of the process to stop."
+      required: true
+      selector:
+        text:

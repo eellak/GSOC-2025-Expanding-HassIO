@@ -1,0 +1,62 @@
+Metadata
+    name: HomeAssistantTestModel
+    version: "1.0.0"
+    author: "Your Name"
+end
+
+Broker<MQTT> home_broker
+    host: "localhost"
+    port: 1883
+    auth:
+        username: ""
+        password: ""
+end
+
+Entity weather_station
+    type: sensor
+    topic: "porch.weather_station"
+    broker: home_broker
+    attributes:
+        - temperature: float
+        - humidity: int
+end
+
+Entity office_light
+    type: actuator
+    topic: "office.light"
+    broker: home_broker
+    attributes:
+        - power: bool
+        - brightness: int
+end
+
+Entity living_room_thermostat
+    type: actuator
+    topic: "living_room.thermostat"
+    broker: home_broker
+    attributes:
+        - target_temp: float
+        - mode: str
+        - on: bool
+end
+
+Automation turn_on_light_when_hot
+    condition:
+        (weather_station.temperature > 28) AND (office_light.power is false)
+    enabled: true
+    continuous: true
+    actions:
+        - office_light.power: true
+        - office_light.brightness: 80
+end
+
+Automation manage_thermostat
+    condition:
+        weather_station.temperature < 20
+    enabled: true
+    continuous: true
+    actions:
+        - living_room_thermostat.target_temp: 22.5
+        - living_room_thermostat.mode: "heat"
+        - living_room_thermostat.on: true
+end

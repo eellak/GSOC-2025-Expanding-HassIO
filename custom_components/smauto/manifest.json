@@ -1,0 +1,12 @@
+{
+  "domain": "smauto",
+  "name": "SmAuto Integration",
+  "documentation": "https://github.com/robotics-4-all/smauto",
+  "issue_tracker": "https://github.com/robotics-4-all/smauto/issues",
+  "codeowners": ["@robotics-4-all"],
+  "version": "1.0.0",
+  "config_flow": true,
+  "iot_class": "local_polling",
+  "dependencies": ["mqtt"],
+  "after_dependencies": ["mqtt"]
+}

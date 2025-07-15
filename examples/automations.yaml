@@ -1,0 +1,43 @@
+- alias: "Send Dummy Temperature to MQTT"
+  trigger:
+    - platform: state
+      entity_id: input_number.dummy_temperature_sensor
+  action:
+    - service: mqtt.publish
+      data:
+        topic: "porch.weather_station/temperature"
+        payload_template: "{{ states('input_number.dummy_temperature_sensor') }}"
+
+- alias: "HA Light State to MQTT"
+  trigger:
+    - platform: state
+      entity_id: light.dummy_office_light
+  action:
+    - service: mqtt.publish
+      data:
+        topic: "office.light/power"
+        payload_template: "{{ 'true' if is_state('light.dummy_office_light', 'on') else 'false' }}"
+
+- alias: "Sync SmAuto Light Power to HA Light"
+  trigger:
+    - platform: mqtt
+      topic: "office.light/power"
+  action:
+    - service: >
+        {% if trigger.payload == 'true' %}
+          light.turn_on
+        {% else %}
+          light.turn_off
+        {% endif %}
+      target:
+        entity_id: light.dummy_office_light
+
+- alias: "Bridge HA Temperature to SmAuto"
+  trigger:
+    - platform: state
+      entity_id: input_number.dummy_temperature_sensor
+  action:
+    - service: mqtt.publish
+      data:
+        topic: "porch.weather_station"
+        payload_template: '{"temperature": {{ states("input_number.dummy_temperature_sensor") | float }} }'

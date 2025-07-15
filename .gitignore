@@ -1,0 +1,59 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Home Assistant stuff
+home-assistant.log
+secrets.yaml
+*.db
+*.db-shm
+*.db-wal
+
+# VSCode
+.vscode/
+.settings/
+
+# Test output
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+.cache/
+nosetests.xml
+pytest_cache/
+pip-wheel-metadata/
+.pytest_cache/
+*.cover
+*.log
+
+# Docker
+*.pid
+
+# Mac/Windows
+.DS_Store
+Thumbs.db
