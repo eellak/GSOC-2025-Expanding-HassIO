@@ -1,0 +1,21 @@
+Metadata
+    name: WeatherDemo
+    version: "0.1.0"
+end
+
+RESTSource Weather
+    url: "https://api.open-meteo.com/v1/forecast"
+    method: GET
+    params: {
+        "latitude": 35.34,
+        "longitude": 25.13,
+        "hourly": "temperature_2m,wind_speed_10m",
+        "forecast_hours": 1,
+        "timezone": "auto"
+    }
+    poll: 10
+    map: {
+        temp: "$.hourly.temperature_2m[0]" | number,
+        wind: "$.hourly.wind_speed_10m[0]" | number
+    }
+end

@@ -1,0 +1,42 @@
+import types
+import utils
+
+RESTSource:
+    'RESTSource' name=ID
+    (
+        ('url:' url=STRING)
+        ('method:' method=HTTPMethod)?
+        ('headers:' headers=Dict)?
+        ('params:' params=Dict)?
+        ('body:' body=Dict | body=STRING)?
+        ('auth:' auth=RESTAuth)?
+        ('poll:' poll=INT)?
+        ('timeout:' timeout=INT)?
+        ('map:' '{' mappings*=RESTMapping[','] '}')
+    )#
+    'end'
+;
+
+RESTMapping:
+    name=ID ':' jpath=STRING ('|' type=BasicType)?
+;
+
+BasicType: 'number' | 'string' | 'bool' | 'list' | 'dict';
+
+HTTPMethod: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+
+RESTAuth: RESTAuthNone | RESTAuthApiKey | RESTAuthBearer | RESTAuthBasic;
+
+RESTAuthNone: 'none';
+
+RESTAuthApiKey:
+    'ApiKey' '(' header=STRING ',' value=STRING ')'
+;
+
+RESTAuthBearer:
+    'Bearer' '(' token=STRING ')'
+;
+
+RESTAuthBasic:
+    'Basic' '(' username=STRING ',' password=STRING ')'
+;

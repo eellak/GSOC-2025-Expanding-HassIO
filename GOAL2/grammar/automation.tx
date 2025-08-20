@@ -1,0 +1,57 @@
+import entity
+import condition
+import types
+import utils
+
+// === Overall Automation ===
+Automation:
+    'Automation' name=ID
+        (
+        ('condition:' condition=Condition)
+        ('description:' description=STRING)?
+        ('actions:' actions*=Action)?
+        ('freq:' freq=INT)?
+        ('enabled:' enabled=BOOL)?
+        ('continuous:' continuous=BOOL)?
+        ('checkOnce:' checkOnce=BOOL)?
+        ('delay:' delay=FLOAT)?
+        ('starts:' '-' starts*=[Automation:FQN|+m:automations]['-'])?
+        ('stops:' '-' stops*=[Automation:FQN|+m:automations]['-'])?
+        ('after:' '-' after*=[Automation:FQN|+m:automations]['-'])?
+        )#
+    'end'
+;
+
+AutomationDependency:
+    automation=[Automation:FQN|+m:automations] ('on' exitStatus=BOOL)?
+;
+
+
+// === Actions ===
+Action:
+    FloatAction | IntAction | BoolAction | StringAction | ListAction | DictAction
+;
+
+IntAction:
+    ('-' attribute=[IntAttribute:FQN|+m:entities.attributes] ':' value=INT)
+;
+
+FloatAction:
+    ('-' attribute=[FloatAttribute:FQN|+m:entities.attributes] ':' value=STRICTFLOAT)
+;
+
+StringAction:
+    ('-' attribute=[StringAttribute:FQN|+m:entities.attributes] ':' value=STRING)
+;
+
+BoolAction:
+    ('-' attribute=[BoolAttribute:FQN|+m:entities.attributes] ':' value=BOOL)
+;
+
+ListAction:
+    ('-' attribute=[ListAttribute:FQN|+m:entities.attributes] ':' value=List)
+;
+
+DictAction:
+    ('-' attribute=[DictAttribute:FQN|+m:entities.attributes] ':' value=Dict)
+;
