@@ -1,0 +1,194 @@
+import entity
+import types
+import utils
+import rest
+
+Condition: AdvancedCondition | PrimitiveCondition | ConditionGroup ;
+
+ConditionGroup:
+    '(' r1=Condition ')' operator=LogicalOperator '(' r2=Condition ')'
+;
+
+PrimitiveCondition:
+    TimeCondition       |
+    NumericCondition    |
+    BoolCondition       |
+    StringCondition     |
+    ListCondition       |
+    DictCondition
+;
+
+AdvancedCondition: InRangeCondition | MathExpression;
+
+InRangeCondition:
+    attribute=AugmentedNumericAttr  'in range'
+        '[' min=NUMBER ',' max=NUMBER ']'
+;
+
+MathExpression:
+	'math' '(' op=MathTerm (op=PlusOrMinus op=MathTerm)* ')'
+;
+
+PlusOrMinus: '+' | '-';
+MulOrDiv: '*' | '/' ;
+
+MathTerm: op=MathFactor (op=MulOrDiv op=MathFactor)*;
+
+MathFactor: (sign=PlusOrMinus)?  op=MathOperand;
+
+MathOperand: op=NUMBER | op=[NumericAttribute:FQN|+m:entities.attributes] | op=RestNumericRef | ('(' op=MathExpression ')');
+
+StdAttr:
+    'std' '(' attribute=AugmentedNumericAttr ',' size=INT ')'
+;
+
+VarAttr:
+    'var' '(' attribute=AugmentedNumericAttr ',' size=INT ')'
+;
+
+MeanAttr:
+    'mean' '(' attribute=AugmentedNumericAttr  ',' size=INT ')'
+;
+
+MinAttr:
+    'min' '(' attribute=AugmentedNumericAttr  ',' size=INT ')'
+;
+
+MaxAttr:
+    'max' '(' attribute=AugmentedNumericAttr  ',' size=INT ')'
+;
+
+MultiplyAttr:
+    'mul' '(' attribute*=AugmentedNumericAttr[','] ')'
+;
+
+AugmentedAttr:
+    AugmentedNumericAttr |
+    AugmentedStringAttr  |
+    AugmentedBoolAttr    |
+    AugmentedListAttr    |
+    AugmentedDictAttr
+;
+
+NumericCondition:
+    (operand1=AugmentedNumericAttr
+     operator=NumericOperator
+     (operand2=NUMBER | operand2=AugmentedNumericAttr))
+;
+
+StringCondition:
+    (operand1=AugmentedStringAttr
+     operator=StringOperator
+     (operand2=STRING | operand2=AugmentedStringAttr))
+;
+
+BoolCondition:
+    (operand1=AugmentedBoolAttr
+     operator=BooleanOperator
+     (operand2=BOOL | operand2=AugmentedBoolAttr))
+;
+
+ListCondition:
+    (operand1=AugmentedListAttr
+     operator=ListOperator
+     (operand2=List | operand2=AugmentedListAttr))
+;
+
+DictCondition:
+    (operand1=AugmentedDictAttr
+     operator=DictOperator
+     (operand2=Dict | operand2=AugmentedDictAttr))
+;
+
+TimeCondition:
+    (operand1=SimpleTimeAttr
+     operator=TimeOperator
+     operand2=Time)
+;
+
+AugmentedNumericAttr:
+    StdAttr         |
+    VarAttr         |
+    MeanAttr        |
+    MinAttr         |
+    MaxAttr         |
+    MultiplyAttr    |
+    SimpleNumericAttr |
+    RestNumericRef
+;
+
+AugmentedStringAttr:
+    SimpleStringAttr | RestStringRef
+;
+
+AugmentedBoolAttr:
+    SimpleBoolAttr | RestBoolRef
+;
+
+AugmentedListAttr:
+    SimpleListAttr | RestListRef
+;
+
+AugmentedDictAttr:
+    SimpleDictAttr | RestDictRef
+;
+
+SimpleNumericAttr:
+    attribute=[NumericAttribute:FQN|+m:entities.attributes]
+;
+
+SimpleStringAttr:
+    attribute=[StringAttribute:FQN|+m:entities.attributes]
+;
+
+SimpleBoolAttr:
+    attribute=[BoolAttribute:FQN|+m:entities.attributes]
+;
+
+SimpleListAttr:
+    attribute=[ListAttribute:FQN|+m:entities.attributes]
+;
+
+SimpleDictAttr:
+    attribute=[DictAttribute:FQN|+m:entities.attributes]
+;
+
+SimpleTimeAttr:
+    attribute=[TimeAttribute:FQN|+m:entities.attributes]
+;
+
+RestNumericRef:
+    'rest' '.' source=[RESTSource:FQN|+m:restSources] '.' field=ID
+;
+
+RestStringRef:
+    'rest' '.' source=[RESTSource:FQN|+m:restSources] '.' field=ID
+;
+
+RestBoolRef:
+    'rest' '.' source=[RESTSource:FQN|+m:restSources] '.' field=ID
+;
+
+RestListRef:
+    'rest' '.' source=[RESTSource:FQN|+m:restSources] '.' field=ID
+;
+
+RestDictRef:
+    'rest' '.' source=[RESTSource:FQN|+m:restSources] '.' field=ID
+;
+
+StringOperator: '~' | '!~' | '==' | '!=' | 'has' | 'in' | 'not in';
+
+NumericOperator: '>=' | '>' | '<=' | '<' | '==' | '!=';
+
+LogicalOperator: 'AND' | 'OR' | 'NOT' | 'XOR' | 'NOR' | 'XNOR' | 'NAND';
+
+BooleanOperator: 'is not' | 'is';
+
+ListOperator: '==' | '!=' | 'is' | 'is not' | 'in' | 'not in';
+
+DictOperator: '==' | '!=' | 'is' | 'is not';
+
+TimeOperator: '>=' | '>' | '<=' | '<' | '==' | '!=' | 'is not' | 'is';
+
+FQN: ID('.'ID)*;

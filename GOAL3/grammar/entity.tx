@@ -1,0 +1,126 @@
+import communication
+import types
+import utils
+
+Entity:
+    'Entity' name=ID
+        (
+			('type:' etype=EntityType)
+			('topic:' topic=STRING)
+            ('description:' description=STRING)?
+			('freq:' freq=NUMBER)?
+			('broker:' broker=[MessageBroker])
+			('attributes:' '-' attributes*=Attribute['-'])
+		)#
+    'end'
+;
+
+EntityType:
+    'sensor' |
+    'actuator' |
+    'hybrid'
+;
+
+Attribute:
+    NumericAttribute    |
+    BoolAttribute       |
+    StringAttribute     |
+    TimeAttribute       |
+    ListAttribute       |
+    DictAttribute
+;
+
+NumericAttribute:
+    IntAttribute | FloatAttribute
+;
+
+IntAttribute:
+    name=ID ':' 'int' ('=' default=INT)?
+        ('->' generator=NumericValueGen ('with noise' noise=Noise)?)?
+;
+
+FloatAttribute:
+    name=ID ':' 'float' ('=' default=FLOAT)?
+        ('->' generator=NumericValueGen ('with noise' noise=Noise)?)?
+;
+
+StringAttribute:
+    name=ID ':' 'str' ('=' default=STRING)?
+;
+
+BoolAttribute:
+    name=ID ':' 'bool' ('=' default=BOOL)?
+        ('->' generator=BooleanValueGen)?
+;
+
+ListAttribute:
+    name=ID ':' 'list' ('=' '[' default*=OBJECT[','] ']')?
+        ('->' generator=ListValueGen)?
+;
+
+DictAttribute:
+    name=ID ':' 'dict' ('=' '{' items*=Attribute[','] '}')?
+        ('->' generator=DictValueGen)?
+;
+
+TimeAttribute:
+    name=ID ':' 'time' ('=' default=Time)?
+;
+
+
+NumericValueGen:
+    ConstantFun     |
+    LinearFun       |
+    SawFun			|
+    GaussianFun     |
+    SinusFun		|
+    ReplayFun       |
+    ReplayFileFun
+;
+
+BooleanValueGen: ReplayFun | ReplayFileFun;
+
+ListValueGen: ReplayFun | ReplayFileFun;
+
+DictValueGen: ReplayFun | ReplayFileFun;
+
+GaussianFun:
+    'gaussian' '(' value=NUMBER ',' maxValue=NUMBER ',' sigma=NUMBER ')'
+;
+
+SinusFun:
+    'sinus' '(' dc=NUMBER ',' amplitude=NUMBER ',' step=NUMBER ')'
+;
+
+ConstantFun:
+    'constant' '(' value=NUMBER ')'
+;
+
+LinearFun:
+    'linear' '(' start=NUMBER ',' step=NUMBER ')'
+;
+
+SawFun:
+    'saw' '(' min=NUMBER ',' max=NUMBER ',' step=NUMBER ')'
+;
+
+// το concept είναι ότι θες να δίνεις συγκεκριμένα patterns ή έχεις κρατήσει
+// τιμές από πραγματικούς αισθητήρες και θες να τις αναπαράγεις
+ReplayFun:
+    'replay' '(' '[' values*=BASETYPE[','] ']' ',' times=INT ')'
+;
+
+ReplayFileFun:
+    'replay' '(' filepath=STRING ')'
+;
+
+
+Noise: UniformNoise | GaussianNoise;
+
+UniformNoise:
+    'uniform' '(' min=NUMBER ',' max=NUMBER ')'
+;
+
+GaussianNoise:
+    'gaussian' '(' mu=NUMBER ',' sigma=NUMBER ')'
+;

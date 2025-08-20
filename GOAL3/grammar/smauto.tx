@@ -1,0 +1,41 @@
+import automation
+import communication
+import entity
+import types
+import utils
+import rest
+
+SmAutoModel:
+    imports*=Import
+    (
+    (metadata=Metadata)?
+    (monitor=RTMonitor)?
+    brokers*=MessageBroker
+    restSources*=RESTSource
+    entities*=Entity
+    automations*=Automation
+    )#
+;
+
+Metadata:
+    'Metadata'
+    (
+        ('name:' name=ID)
+        ('version:' version=STRING)
+        ('author:' author=STRING)?
+        ('email:' email=STRING)?
+        ('description:' description=STRING)?
+    'end'
+    )#
+;
+
+RTMonitor:
+    'RTMonitor'
+    (
+        ('broker:' broker=[MessageBroker])
+		('namespace:' ns=STRING)?
+		('eventTopic:' eTopic=STRING)?
+		('logsTopic:' lTopic=STRING)?
+    'end'
+    )#
+;
