@@ -1,6 +1,6 @@
 ## REST Integration (Goal 2)
 
-Με το **RESTSource** μπορείς να δηλώσεις REST APIs μέσα στο μοντέλο και να χρησιμοποιείς απευθείας τα δεδομένα τους στη λογική των automations μέσω `rest.<SourceName>.<field>`.
+With **RESTSource** you can declare REST APIs directly in the model and use their data inside automation logic through `rest.<SourceName>.<field>`.
 
 ### Syntax
 
@@ -10,14 +10,14 @@ RESTSource <Name>
     method: GET | POST | PUT | DELETE
     headers: {"X-Api-Key": "KEY"}              # optional
     params:  {"q": "crete", "units": "metric"} # optional
-    body:    {"foo": "bar"}                    # optional (dict ή JSON string)
+    body:    {"foo": "bar"}                    # optional (dict or JSON string)
     auth:
-        # ένα από:
+        # one of:
         #   ApiKey(header, value)
         #   Bearer(token)
         #   Basic(username, password)
-    poll: 60                                   # προαιρετικό polling interval (sec)
-    timeout: 10                                # προαιρετικό request timeout (sec)
+    poll: 60                                   # optional polling interval (sec)
+    timeout: 10                                # optional request timeout (sec)
     map: {
         field1: "$.path.to.value"   | number,  # types: number|string|bool|list|dict
         field2: "$.arr[0].name"     | string
@@ -25,12 +25,12 @@ RESTSource <Name>
 end
 ```
 
-> Το `map` ορίζει **ονοματισμένα πεδία** με απλά JSON paths (π.χ. `$.a.b[0]`).  
-> Αυτά τα πεδία είναι διαθέσιμα σε conditions/expressions ως `rest.<Source>.<field>`.
+> The `map` defines **named fields** using simple JSON paths (e.g. `$.a.b[0]`).  
+> These fields are then available in conditions/expressions as `rest.<Source>.<field>`.
 
 ---
 
-### Παράδειγμα (Open-Meteo)
+### Example (Open-Meteo)
 
 ```smauto
 Metadata
@@ -56,7 +56,7 @@ RESTSource Weather
 end
 ```
 
-Χρήση σε automation:
+Usage in automation:
 
 ```smauto
 Automation cool_when_hot
@@ -72,9 +72,9 @@ end
 
 ### Runtime Behavior
 
-- **Warm-up fetch** στην εκκίνηση, ώστε τα mapped fields να έχουν άμεσα τιμές.
-- **Polling loop** που ανανεώνει τις τιμές κάθε `poll` δευτερόλεπτα.
-- Οι τιμές αποθηκεύονται σε in-memory store και είναι διαθέσιμες στην αξιολόγηση ως `rest.<Source>.<field>`.
+- **Warm-up fetch** at startup, so mapped fields have values immediately.
+- **Polling loop** refreshes values every `poll` seconds.
+- Values are stored in an in-memory store and can be accessed in expressions as `rest.<Source>.<field>`.
 
 ---
 
@@ -82,7 +82,7 @@ end
 
 ```bash
 python scripts/run_rest_demo.py examples/weather_rest.smauto
-# Παράδειγμα εξόδου:
+# Example output:
 # [Weather] {'temp': 21.3, 'wind': 6.5}
 ```
 
@@ -90,10 +90,10 @@ python scripts/run_rest_demo.py examples/weather_rest.smauto
 
 ```bash
 pytest -q
-# Περιλαμβάνει:
+# Includes:
 # - tests/test_rest_mapping.py   (JSON-path & type casting)
 # - tests/test_rest_client.py    (HTTP client behavior)
-# - tests/test_rest_runtime.py   (poller ενημερώνει το store)
+# - tests/test_rest_runtime.py   (poller updates the store)
 ```
 
 ---
@@ -101,11 +101,11 @@ pytest -q
 ### File Map
 
 - **Grammar**
-  - `smauto/grammar/rest.tx` – ορισμός `RESTSource`
-  - `smauto/grammar/smauto.tx` – προσθήκη `restSources*=RESTSource` στο μοντέλο
-  - `smauto/grammar/condition.tx` – υποστήριξη `rest.Source.field` σε conditions
+  - `smauto/grammar/rest.tx` – definition of `RESTSource`
+  - `smauto/grammar/smauto.tx` – adds `restSources*=RESTSource` to the model
+  - `smauto/grammar/condition.tx` – supports `rest.Source.field` in conditions
 - **Backend**
-  - `smauto/lib/rest_client.py` – async HTTP (httpx), auth, retries, μετατροπή DSL→native
+  - `smauto/lib/rest_client.py` – async HTTP (httpx), auth, retries, DSL→native translation
   - `smauto/lib/rest_mapping.py` – JSON-path reader + type casting
   - `smauto/lib/rest_runtime.py` – warm-up + polling, in-memory value store
 - **Demo/Tests**
@@ -116,6 +116,7 @@ pytest -q
 
 ### Tips & Troubleshooting
 
-- Αν στην αρχή δεις `None`, περίμενε έναν κύκλο polling (ή βεβαιώσου ότι το warm-up είναι ενεργό—είναι by default).
-- Έλεγξε τα JSON paths πάνω στην **πραγματική** απόκριση του API· για arrays χρησιμοποίησε indices (π.χ. `...temperature_2m[0]`).
-- Συνιστάται χρήση **virtualenv** για την εγκατάσταση εξαρτήσεων (`httpx` υπάρχει στο `requirements.txt`).
+- If you see `None` at first, wait for a polling cycle (or ensure warm-up is enabled—it is by default).
+- Double-check JSON paths against the **actual API response**; for arrays use indices (e.g. `...temperature_2m[0]`).
+- It is recommended to use a **virtualenv** for dependency installation (`httpx` is already included in `requirements.txt`).
+
